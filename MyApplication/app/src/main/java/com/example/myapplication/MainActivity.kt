@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // 👇 하단 시스템 내비게이션 바와 상단 상태바를 완전히 숨기는 코드
+        // 하단 시스템 네비게이션 바 완전 숨김
         hideSystemUI()
 
         val webView = findViewById<WebView>(R.id.webview)
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("file:///android_asset/together.html")
     }
 
-    // 앱이 실행될 때 하단 바를 숨기고, 화면을 터치하면 잠깐 나타났다가 다시 사라지게 만드는 설정
+    // 앱 실행 시 네비게이션 숨김, 터치하면 잠시 나옴
     private fun hideSystemUI() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.let { controller ->

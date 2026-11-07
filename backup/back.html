@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리만의 커플 공간 💕</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #ffd1dc, #ff9aa2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background-color: #fff0f3;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 10px 30px rgba(255, 105, 135, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px 18px 10px 18px;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(1px);
+            z-index: 1;
+            pointer-events: none;
+        }
+        .container > * {
+            z-index: 2;
+        }
+
+        /* 상단 영역 */
+        .header {
+            text-align: center;
+            margin-top: 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .edit-toggle-btn {
+            position: absolute;
+            top: 0; right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #ffb3c1;
+            color: #ff3366;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .edit-toggle-btn:hover {
+            background: #ff3366;
+            color: white;
+        }
+
+        .dday-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 2px solid #ff85a1;
+            box-shadow: 0 4px 14px rgba(255, 133, 161, 0.3);
+            flex-shrink: 0;
+        }
+        .dday-text {
+            color: #ff2a5f;
+            font-size: 13.5px;
+            font-weight: 800;
+        }
+
+        .sub-dday-view-wrapper {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-height: 20px;
+        }
+        .sub-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 2px 7px;
+            border-radius: 12px;
+            border: 1px solid #ffccd5;
+            font-size: 10px;
+            font-weight: 700;
+            color: #ff3366;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            display: none;
+        }
+
+        /* 팝업 모달 스타일 */
+        .edit-modal, .theme-modal, .widget-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 240, 243, 0.96);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            padding: 25px 20px;
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffb3c1;
+            padding-bottom: 8px;
+        }
+        .modal-header h2 {
+            color: #ff3366;
+            font-size: 15px;
+            font-weight: 800;
+        }
+        .modal-close-btn {
+            background: #ff3366;
+            color: white;
+            border: none;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #ff477e;
+            margin-bottom: 2px;
+        }
+        .modal-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            padding: 5px 8px;
+            border-radius: 10px;
+            border: 1px solid #ffe5ec;
+            gap: 6px;
+            display: none;
+        }
+        .dday-icon-input {
+            border: 1px solid #ffd1dc;
+            background: #fff0f3;
+            font-size: 13px;
+            outline: none;
+            border-radius: 6px;
+            width: 32px; height: 28px;
+            text-align: center;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .modal-date-input {
+            border: none;
+            background: rgba(255, 240, 243, 0.9);
+            font-size: 10px;
+            color: #ff3366;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            padding: 3px 5px;
+            border-radius: 6px;
+            font-family: 'Nanum Gothic', sans-serif;
+            flex: 1;
+            text-align: center;
+        }
+        .modal-delete-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 0 3px;
+        }
+        .modal-delete-btn:hover { color: #ff3366; }
+        .modal-add-btn {
+            background: #ffffff;
+            color: #ff3366;
+            border: 1.5px dashed #ff85a1;
+            border-radius: 10px;
+            padding: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .modal-add-btn:hover { background: #fff0f3; }
+
+        /* 테마 선택 모달 */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .theme-card {
+            background: #ffffff;
+            border: 2px solid #ffb3c1;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ff3366;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+            transition: 0.2s;
+        }
+        .theme-card:hover {
+            transform: scale(1.03);
+            background: #fff0f3;
+        }
+
+        /* 메인 콘텐츠 스크롤 영역 */
+        .main-content-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+        .main-content-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .photo-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .couple-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            max-width: 100px;
+        }
+        .photo-box {
+            width: 78px; height: 78px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 3.5px solid #ff85a1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 12px rgba(255, 133, 161, 0.25);
+            transition: transform 0.2s;
+        }
+        .photo-box:hover { transform: scale(1.05); }
+        .photo-box img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            position: absolute; top: 0; left: 0;
+            display: none;
+        }
+        .photo-box span {
+            color: #ff5c8a;
+            font-size: 9.5px;
+            text-align: center;
+            padding: 3px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .heart-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            width: 38px; height: 38px;
+            flex-shrink: 0;
+            margin-bottom: 18px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .heart-icon {
+            font-size: 26px;
+            filter: drop-shadow(0 3px 6px rgba(255, 51, 102, 0.3));
+            animation: heartbeat 1.2s infinite ease-in-out;
+            user-select: none;
+            pointer-events: none;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .floating-heart {
+            position: absolute;
+            font-size: 16px;
+            pointer-events: none;
+            animation: floatUp 0.9s forwards ease-out;
+            z-index: 99;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.6); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.4); }
+        }
+
+        .name-edit-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 3px 6px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            transition: all 0.2s;
+        }
+        .name-edit-area:focus-within {
+            background: #ffffff;
+            border: 2px solid #ff85a1;
+        }
+        .name-input {
+            border: none;
+            background: transparent;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ff3366;
+            text-align: center;
+            width: 100%;
+            outline: none;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+
+        .feed-photo-box {
+            width: 100%;
+            height: 230px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2.5px solid #ffb3c1;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(255, 133, 161, 0.2);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        .feed-photo-box:hover { transform: scale(1.01); }
+        .feed-photo-box img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            position: absolute; top: 0; left: 0;
+            display: none;
+        }
+        .feed-photo-box span {
+            color: #ff5c8a;
+            font-size: 13px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        /* 동적 위젯 컨테이너 */
+        .widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* 위젯 공통 카드 스타일 */
+        .widget-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 16px;
+            border: 1.5px solid #ffccd5;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(255, 154, 162, 0.15);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .widget-remove-btn {
+            position: absolute;
+            top: 8px; right: 10px;
+            background: none;
+            border: none;
+            color: #ff85a1;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .widget-remove-btn:hover { color: #ff3366; }
+
+        /* 이미지 위젯 */
+        .widget-img-box {
+            width: 100%; height: 140px;
+            border-radius: 12px;
+            background: #fff0f3;
+            border: 1.5px dashed #ffb3c1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+        }
+        .widget-img-box img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            position: absolute; top:0; left:0;
+            display: none;
+        }
+        .widget-img-box span {
+            font-size: 11px;
+            color: #ff5c8a;
+            font-weight: 700;
+        }
+
+        /* 메모 위젯 */
+        .widget-memo-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #ff3366;
+        }
+        .widget-memo-textarea {
+            width: 100%;
+            height: 60px;
+            border: none;
+            background: #fff8f9;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 11px;
+            color: #4a4a4a;
+            resize: none;
+            outline: none;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+
+        /* 캘린더 위젯 */
+        .widget-calendar-header {
+            font-size: 12px;
+            font-weight: 800;
+            color: #ff3366;
+            text-align: center;
+        }
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+            font-size: 9px;
+            margin-top: 4px;
+        }
+        .calendar-day-head {
+            font-weight: 800;
+            color: #ff85a1;
+        }
+        .calendar-date-cell {
+            padding: 3px 0;
+            color: #555;
+            border-radius: 4px;
+        }
+        .calendar-date-cell.today {
+            background: #ff3366;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 하단 버튼 영역 */
+        .content-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .bottom-action-btn {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #ff3366;
+            border: 2px solid #ffb3c1;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 179, 193, 0.3);
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .bottom-action-btn:hover {
+            background-color: #ff3366;
+            color: white;
+            border-color: #ff3366;
+        }
+
+        /* 네비게이션 바 */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-top: 1px solid #ffe5ec;
+            padding: 7px 0 5px 0;
+            width: calc(100% + 36px);
+            margin-left: -18px;
+            margin-right: -18px;
+            margin-bottom: -10px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #b0b0b0;
+            font-size: 10px;
+            font-weight: 700;
+            gap: 3px;
+            flex: 1;
+            transition: color 0.2s;
+            font-family: 'Nanum Gothic', sans-serif;
+        }
+        .nav-item.active, .nav-item:hover { color: #ff3366; }
+        .nav-icon { font-size: 17px; }
+        .nav-item.center-btn .center-circle {
+            width: 35px; height: 35px;
+            background: linear-gradient(135deg, #ff4d6d, #ff758f);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 17px;
+            box-shadow: 0 4px 10px rgba(255, 77, 109, 0.4);
+            margin-top: -5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="overlay"></div>
+
+        <!-- 상단 디데이 영역 -->
+        <div class="header">
+            <button class="edit-toggle-btn" onclick="openEditModal()">디데이 편집</button>
+            <div class="dday-box">
+                <span class="dday-text" id="ddayDisplay">❤️ D+1일째 사랑 중</span>
+            </div>
+            <div class="sub-dday-view-wrapper" id="subDdayViewWrapper">
+                <span class="sub-badge" id="badge1">❤️ D+1일</span>
+                <span class="sub-badge" id="badge2">✈️ D+1일</span>
+                <span class="sub-badge" id="badge3">💍 D+1일</span>
+            </div>
+        </div>
+
+        <!-- 스크롤 가능한 메인 피드 & 위젯 스택 영역 -->
+        <div class="main-content-scroll">
+            <!-- 프로필 사진 2개 & 터치 하트 -->
+            <div class="photo-section">
+                <div class="couple-profile">
+                    <div class="photo-box" onclick="document.getElementById('file1').click()">
+                        <span id="text1">사진<br>등록</span>
+                        <img id="img1" src="" alt="프로필 1">
+                        <input type="file" id="file1" style="display:none;" accept="image/*" onchange="previewImage(event, 'img1', 'text1')">
+                    </div>
+                    <div class="name-edit-area">
+                        <input type="text" id="nameInput1" class="name-input" value="은율이" onclick="this.select()">
+                    </div>
+                </div>
+                
+                <div class="heart-container" id="heartContainer" onclick="burstHearts(event)" ontouchstart="burstHearts(event)">
+                    <div class="heart-icon">💖</div>
+                </div>
+
+                <div class="couple-profile">
+                    <div class="photo-box" onclick="document.getElementById('file2').click()">
+                        <span id="text2">사진<br>등록</span>
+                        <img id="img2" src="" alt="프로필 2">
+                        <input type="file" id="file2" style="display:none;" accept="image/*" onchange="previewImage(event, 'img2', 'text2')">
+                    </div>
+                    <div class="name-edit-area">
+                        <input type="text" id="nameInput2" class="name-input" value="현이" onclick="this.select()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 메인 커플 대표 피드 사진 -->
+            <div class="feed-photo-box" onclick="document.getElementById('feedFile').click()">
+                <span id="feedText">사진 등록하기</span>
+                <img id="feedImg" src="" alt="커플 메인 피드 사진">
+                <input type="file" id="feedFile" style="display:none;" accept="image/*" onchange="previewFeedImage(event)">
+            </div>
+
+            <!-- 동적으로 위젯이 들어오는 리스트 영역 -->
+            <div class="widget-list" id="widgetList"></div>
+        </div>
+
+        <!-- 하단 조작 버튼 (위젯 추가 / 테마 선택) -->
+        <div class="content-bottom">
+            <button class="bottom-action-btn" onclick="openWidgetModal()">
+                ➕ 위젯 추가
+            </button>
+            <button class="bottom-action-btn" onclick="openThemeModal()">
+                🎨 테마 선택
+            </button>
+        </div>
+
+        <!-- 하단 네비게이션 바 -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="alert('홈 화면입니다!')">
+                <span class="nav-icon">🏠</span>
+                <span>홈</span>
+            </button>
+            <button class="nav-item" onclick="alert('커플 앨범 화면으로 이동합니다!')">
+                <span class="nav-icon">🖼️</span>
+                <span>앨범</span>
+            </button>
+            <button class="nav-item center-btn" onclick="alert('새로운 추억 글쓰기!')">
+                <div class="center-circle">＋</div>
+                <span>작성</span>
+            </button>
+            <button class="nav-item" onclick="alert('둘만의 이야기(채팅)')">
+                <span class="nav-icon">💬</span>
+                <span>채팅</span>
+            </button>
+            <button class="nav-item" onclick="alert('설정 및 메뉴')">
+                <span class="nav-icon">☰</span>
+                <span>더보기</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- [위젯 추가] 선택 모달창 -->
+    <div class="widget-modal" id="widgetModal">
+        <div class="modal-header">
+            <h2>위젯 추가하기</h2>
+            <button class="modal-close-btn" onclick="closeWidgetModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section-title">홈 화면에 추가할 위젯 종류를 선택해 주세요.</div>
+            <div class="theme-grid">
+                <div class="theme-card" onclick="addWidget('image')">🖼️ 서브 이미지 위젯</div>
+                <div class="theme-card" onclick="addWidget('memo')">📝 소소한 메모 위젯</div>
+                <div class="theme-card" onclick="addWidget('calendar')">📅 미니 캘린더 위젯</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [디데이 편집] 모달창 -->
+    <div class="edit-modal" id="editModal">
+        <div class="modal-header">
+            <h2>디데이 편집하기</h2>
+            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section-title">메인 디데이 설정</div>
+            <div class="modal-row" style="display: flex;">
+                <span style="font-size: 12px; font-weight: 700; color: #ff3366;">❤️ 시작일</span>
+                <input type="date" id="startDate" class="modal-date-input" onchange="calculateMainDday()">
+            </div>
+
+            <div class="modal-section-title" style="margin-top: 8px;">서브 디데이 설정 (최대 3개)</div>
+            <div class="modal-row" id="modalRow1">
+                <input type="text" class="dday-icon-input" id="iconInput1" value="❤️" maxlength="2" oninput="updateView()">
+                <input type="date" id="subDate1" class="modal-date-input" onchange="updateView()">
+                <button class="modal-delete-btn" onclick="removeSubDday(1)">×</button>
+            </div>
+            <div class="modal-row" id="modalRow2">
+                <input type="text" class="dday-icon-input" id="iconInput2" value="✈️" maxlength="2" oninput="updateView()">
+                <input type="date" id="subDate2" class="modal-date-input" onchange="updateView()">
+                <button class="modal-delete-btn" onclick="removeSubDday(2)">×</button>
+            </div>
+            <div class="modal-row" id="modalRow3">
+                <input type="text" class="dday-icon-input" id="iconInput3" value="💍" maxlength="2" oninput="updateView()">
+                <input type="date" id="subDate3" class="modal-date-input" onchange="updateView()">
+                <button class="modal-delete-btn" onclick="removeSubDday(3)">×</button>
+            </div>
+
+            <button class="modal-add-btn" id="modalAddBtn" onclick="addSubDday()">+ 디데이 추가하기</button>
+        </div>
+    </div>
+
+    <!-- [테마 선택] 모달창 -->
+    <div class="theme-modal" id="themeModal">
+        <div class="modal-header">
+            <h2>단색 테마 선택하기</h2>
+            <button class="modal-close-btn" onclick="closeThemeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-section-title">원하는 파스텔 단색 테마를 선택해보세요!</div>
+            <div class="theme-grid">
+                <div class="theme-card" onclick="setTheme('#fff0f3', 'linear-gradient(135deg, #ffd1dc, #ff9aa2)')" style="background:#fff0f3;">🌸 로맨틱 핑크</div>
+                <div class="theme-card" onclick="setTheme('#fff5eb', 'linear-gradient(135deg, #ffe5d9, #ffcad4)')" style="background:#fff5eb;">🍑 스위트 피치</div>
+                <div class="theme-card" onclick="setTheme('#f0fdf4', 'linear-gradient(135deg, #d8f3dc, #b7e4c7)')" style="background:#f0fdf4;">🌿 포레스트 민트</div>
+                <div class="theme-card" onclick="setTheme('#f3f0ff', 'linear-gradient(135deg, #e0aaff, #c77dff)')" style="background:#f3f0ff;">💜 드림 라벤더</div>
+                <div class="theme-card" onclick="setTheme('#fff9db', 'linear-gradient(135deg, #fff3b0, #ffec99)')" style="background:#fff9db;">🍋 레몬 버터</div>
+                <div class="theme-card" onclick="setTheme('#f8f9fa', 'linear-gradient(135deg, #e9ecef, #dee2e6)')" style="background:#f8f9fa;">☁️ 클래식 화이트</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let widgetCounter = 0;
+
+        window.addEventListener('DOMContentLoaded', function() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const mainDate = document.getElementById('startDate');
+            if (mainDate) {
+                mainDate.value = todayStr;
+                calculateMainDday();
+            }
+        });
+
+        /* 모달 제어 함수 */
+        function openEditModal() { document.getElementById('editModal').style.display = 'flex'; }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        function openThemeModal() { document.getElementById('themeModal').style.display = 'flex'; }
+        function closeThemeModal() { document.getElementById('themeModal').style.display = 'none'; }
+
+        function openWidgetModal() { document.getElementById('widgetModal').style.display = 'flex'; }
+        function closeWidgetModal() { document.getElementById('widgetModal').style.display = 'none'; }
+
+        /* 위젯 동적 생성 */
+        function addWidget(type) {
+            widgetCounter++;
+            const list = document.getElementById('widgetList');
+            const card = document.createElement('div');
+            card.className = 'widget-card';
+            card.id = `widget-${widgetCounter}`;
+
+            let contentHTML = `<button class="widget-remove-btn" onclick="removeWidget('widget-${widgetCounter}')">×</button>`;
+
+            if (type === 'image') {
+                contentHTML += `
+                    <div class="widget-img-box" onclick="document.getElementById('wFile-${widgetCounter}').click()">
+                        <span id="wText-${widgetCounter}">📷 서브 사진 등록하기</span>
+                        <img id="wImg-${widgetCounter}" src="" alt="위젯 이미지">
+                        <input type="file" id="wFile-${widgetCounter}" style="display:none;" accept="image/*" onchange="previewWidgetImage(event, 'wImg-${widgetCounter}', 'wText-${widgetCounter}')">
+                    </div>
+                `;
+            } else if (type === 'memo') {
+                contentHTML += `
+                    <div class="widget-memo-title">📝 한 줄 메모</div>
+                    <textarea class="widget-memo-textarea" placeholder="서로에게 전하고 싶은 메모를 적어보세요..."></textarea>
+                `;
+            } else if (type === 'calendar') {
+                contentHTML += `
+                    <div class="widget-calendar-header">📅 이달의 달력</div>
+                    <div class="mini-calendar-grid">
+                        <div class="calendar-day-head">일</div><div class="calendar-day-head">월</div><div class="calendar-day-head">화</div><div class="calendar-day-head">수</div><div class="calendar-day-head">목</div><div class="calendar-day-head">금</div><div class="calendar-day-head">토</div>
+                        <div></div><div></div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div>
+                        <div>6</div><div>7</div><div class="calendar-date-cell today">8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+                        <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div>
+                        <div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div>
+                        <div>27</div><div>28</div><div>29</div><div>30</div>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = contentHTML;
+            list.appendChild(card);
+            closeWidgetModal();
+        }
+
+        function removeWidget(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        }
+
+        function previewWidgetImage(event, imgId, textId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    const output = document.getElementById(imgId);
+                    output.src = e.target.result;
+                    output.style.display = 'block';
+                    document.getElementById(textId).style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        /* 단색 테마 변경 */
+        function setTheme(bgColor, bgGradient) {
+            const container = document.getElementById('mainContainer');
+            container.style.backgroundImage = 'none';
+            container.style.backgroundColor = bgColor;
+            document.body.style.background = bgGradient;
+            closeThemeModal();
+        }
+
+        /* 서브 디데이 제어 */
+        function addSubDday() {
+            for (let i = 1; i <= 3; i++) {
+                const row = document.getElementById(`modalRow${i}`);
+                if (row.style.display !== 'flex') {
+                    row.style.display = 'flex';
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    document.getElementById(`subDate${i}`).value = todayStr;
+                    break;
+                }
+            }
+            updateView();
+            checkModalAddButton();
+        }
+
+        function removeSubDday(index) {
+            document.getElementById(`modalRow${index}`).style.display = 'none';
+            document.getElementById(`subDate${index}`).value = '';
+            updateView();
+            checkModalAddButton();
+        }
+
+        function checkModalAddButton() {
+            let visibleCount = 0;
+            for (let i = 1; i <= 3; i++) {
+                if (document.getElementById(`modalRow${i}`).style.display === 'flex') visibleCount++;
+            }
+            const addBtn = document.getElementById('modalAddBtn');
+            if (visibleCount >= 3) addBtn.style.display = 'none';
+            else addBtn.style.display = 'block';
+        }
+
+        function updateView() {
+            for (let i = 1; i <= 3; i++) {
+                const row = document.getElementById(`modalRow${i}`);
+                const badge = document.getElementById(`badge${i}`);
+                
+                if (row.style.display === 'flex') {
+                    const icon = document.getElementById(`iconInput${i}`).value || '❤️';
+                    const dateVal = document.getElementById(`subDate${i}`).value;
+                    
+                    if (dateVal) {
+                        const target = new Date(dateVal);
+                        const today = new Date();
+                        target.setHours(0,0,0,0);
+                        today.setHours(0,0,0,0);
+                        const diffDays = Math.floor((today - target) / (1000 * 60 * 60 * 24));
+                        
+                        let text = diffDays >= 0 ? `D+${diffDays + 1}` : `D${diffDays}`;
+                        badge.innerHTML = `${icon} ${text}`;
+                        badge.style.display = 'inline-flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function calculateMainDday() {
+            const startDateInput = document.getElementById('startDate').value;
+            if (!startDateInput) return;
+
+            const start = new Date(startDateInput);
+            const today = new Date();
+            start.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            const diffTime = today - start;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            const ddayDisplay = document.getElementById('ddayDisplay');
+            if (!isNaN(diffDays)) {
+                if (diffDays > 0) {
+                    ddayDisplay.innerHTML = `❤️ D+${diffDays}일째 사랑 중`;
+                } else if (diffDays === 0) {
+                    ddayDisplay.innerHTML = `❤️ 오늘이 시작일이에요! (D-Day)`;
+                } else {
+                    ddayDisplay.innerHTML = `❤️ 앞으로 만날 날 (D${diffDays})`;
+                }
+            }
+        }
+
+        /* 하트 클릭 폭발 효과 */
+        function burstHearts(event) {
+            if (event.type === 'touchstart') event.preventDefault();
+            
+            const container = document.getElementById('heartContainer');
+            for (let i = 0; i < 6; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerHTML = ['💖', '✨', '💗', '💓'][Math.floor(Math.random() * 4)];
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 40 + Math.random() * 50;
+                const dx = Math.cos(angle) * distance;
+                const dy = Math.sin(angle) * distance - 25;
+                
+                heart.style.setProperty('--dx', `${dx}px`);
+                heart.style.setProperty('--dy', `${dy}px`);
+                
+                container.appendChild(하트);
+                setTimeout(() => { heart.remove(); }, 900);
+            }
+        }
+
+        /* 이미지 프리뷰 */
+        function previewImage(event, imgId, textId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    const output = document.getElementById(imgId);
+                    output.src = e.target.result;
+                    output.style.display = 'block';
+                    document.getElementById(textId).style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewFeedImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    const output = document.getElementById('feedImg');
+                    output.src = e.target.result;
+                    output.style.display = 'block';
+                    document.getElementById('feedText').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
